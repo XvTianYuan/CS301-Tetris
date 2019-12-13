@@ -296,6 +296,7 @@ int** change(int type, int kind) {
  * 顺便取得作画时所用的颜色
  */
 int create() {
+	srand(time(0));
 	int now = rand() % 5;
 	while (now == pre) {
 		now = rand() % 5;
