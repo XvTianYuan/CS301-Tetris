@@ -62,13 +62,13 @@ int* random();
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int type1[][3] = { { 0, 0, 0 }, { 1, 1, 1 }, { 0, 1, 0 } };
-int type2[][3] = { { 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 1 } };
+int type1[4][4] = { { 0, 0, 0 ,0}, { 1, 1, 1,0 }, { 0, 1, 0,0 },{0,0,0,0} };
+int type2[4][4] = { { 0, 1, 0,0 }, { 0, 1, 0,0 }, { 0, 1, 1,0 },{0,0,0,0} };
 //int type2[][3] = { { 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 1 } };
-int type3[][3] = { { 0, 0, 0 }, { 1, 1, 0 }, { 0, 1, 1 } };
-int type4[][3] = { { 1, 1, 0 }, { 1, 1, 0 }, { 0, 0, 0 } };
-int type0[][4] = {{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0}};
-int type5[][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,1,1,1}};
+int type3[4][4] = { { 0, 0, 0,0 }, { 1, 1, 0,0 }, { 0, 1, 1,0 },{0,0,0,0} };
+int type4[4][4] = { { 1, 1, 0,0 }, { 1, 1, 0 ,0}, { 0, 0, 0 ,0},{0,0,0,0} };
+int type0[4][4] = {{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0}};
+int type5[4][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,1,1,1}};
 int shapeType = 0;//0代表使用3*3矩阵的形状，1代表长条
 uint16_t container[30][18];
 uint16_t color;
@@ -135,7 +135,7 @@ int main(void) {
 //			LCD_ShowString(50,40,200,50,32,(uint8_t)"Game Over!");
 //			break;
 //		}
-        int base[][]=random();
+        int base[4][4]=create();
 		drawPlane(x, y, base, color);
 		int breakOrNot = 0;
 		while(breakOrNot==0){
@@ -212,52 +212,30 @@ static void MX_GPIO_Init(void) {
 
 int* change(int type,int kind){
      if(type==0){
-		 if(kind%2==0)
-			 return type0;
-		else{
-			return type5;
-		}			
+		 type=5;
+		return type5;
+	 }
+	 else if(type==5){
+		 type=0;
+		 return type0;
 	 }
 	 else if(type==4){
 		 return type4;
 	 }
 	 else{
-		 int base[][3]={};
-		 int ans[3][3]={{0,0,0},{0,0,0},{0,0,0}};
+		 int base[4][4]={};
+		 int ans[4][4]={{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
 		 if(type==1) base=type1;
 		 if(type==2) base=type2;
 		 if(type==3) base=type3;
-		 if(kind==0) return base;
-		 if(kind==1) {
-		     ans[0][2]=base[0][0];
-			 ans[0][0]=base[2][0];
-			 ans[2][0]=base[2][2];
-			 ans[2][2]=base[0][2];
-			 ans[0][1]=base[1][0];
-			 ans[1][2]=base[0][1];
-			 ans[2][1]=base[1][2];
-			 ans[1][0]=base[2][1];
-		 }
-		 if(kind ==2){
-			 ans[0][2]=base[2][0];
-			 ans[2][0]=base[0][2];
-			 ans[1][2]=base[1][0];
-			 ans[1][0]=base[1][2];
-			 ans[0][0]=base[2][2];
-			 ans[2][2]=base[0][0];
-			 ans[2][1]=base[0][1];
-			 ans[0][1]=base[2][1];
-		 }
-		 if(kind==3){
-			 ans[0][0]=base[0][2];
-			 ans[2][0]=base[0][0];
-			 ans[2][2]=base[2][0];
-			 ans[0][2]=base[2][2];
-			 ans[1][0]=base[0][1];
-			 ans[0][1]=base[1][2];
-			 ans[1][2]=base[2][1];
-			 ans[2][1]=base[1][0];
-		 }
+	     ans[0][2]=base[0][0];
+		 ans[0][0]=base[2][0];
+		 ans[2][0]=base[2][2];
+		 ans[2][2]=base[0][2];
+    	 ans[0][1]=base[1][0];
+		 ans[1][2]=base[0][1];
+		 ans[2][1]=base[1][2];
+		 ans[1][0]=base[2][1];
 		 return ans;
 	 }
 }
@@ -267,7 +245,7 @@ int* change(int type,int kind){
  * 利用上面提到的旋转函数进行转化
  * 顺便取得作画时所用的颜色
  */	
-int* random(){
+int* create(){
 	int now=rand()%5;
 	while(now==pre){
 		now=rand()%5;
@@ -275,7 +253,26 @@ int* random(){
 	pre=now;
 	color=now+1;
 	int type=rand()%4;
-	return change(now,type)
+	if(type==0) {
+		color=BLUE;
+		return type0;
+	}
+	if(type==1) {
+		color=YELLOW;
+		return type1;
+	}
+	if(type==2) {
+		color=RED;
+		return type2;
+	}
+	if(type==3) {
+		color=GREEN;
+		return type3;
+	}
+	if(type==4) {
+		color=BRRED;
+		return type4;
+	}
 }
 /*
  * 返回1代表GameOver
