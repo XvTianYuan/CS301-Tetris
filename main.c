@@ -21,6 +21,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "lcd.h"
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -51,6 +54,8 @@
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 int moveDown(int x,int y,int type[][3],uint16_t color);
+int* change(int type,int kind);
+int* random();
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -62,8 +67,12 @@ int type2[][3] = { { 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 1 } };
 //int type2[][3] = { { 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 1 } };
 int type3[][3] = { { 0, 0, 0 }, { 1, 1, 0 }, { 0, 1, 1 } };
 int type4[][3] = { { 1, 1, 0 }, { 1, 1, 0 }, { 0, 0, 0 } };
-int shapeType = 0;//0代表使用3*3矩阵的形状，1代表正方形，2代表长条
+int type0[][4] = {{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0}};
+int type5[][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,1,1,1}};
+int shapeType = 0;//0代表使用3*3矩阵的形状，1代表长条
 uint16_t container[30][18];
+uint16_t color;
+int pre;
 /* USER CODE END 0 */
 
 /**
@@ -72,7 +81,7 @@ uint16_t container[30][18];
  */
 int main(void) {
 	/* USER CODE BEGIN 1 */
-
+	srand((unsigned)time(NULL));
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -111,7 +120,8 @@ int main(void) {
 			container[i][j] = 0;
 		}
 	}
-
+	pre=-1;
+	color=0;
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -125,14 +135,14 @@ int main(void) {
 //			LCD_ShowString(50,40,200,50,32,(uint8_t)"Game Over!");
 //			break;
 //		}
-
-		drawPlane(x, y, type2, BLUE);
+        int base[][]=random();
+		drawPlane(x, y, base, color);
 		int breakOrNot = 0;
 		while(breakOrNot==0){
 			switch (shapeType){
 				case 0:
 					HAL_Delay(100);
-					int state = moveDown(x,y,type2,BLUE);
+					int state = moveDown(x,y,base,color);
 					if(state == 1){
 						x++;
 					}else{
@@ -143,7 +153,7 @@ int main(void) {
 	//				clearPlane(x,y,type2);
 					break;
 				case 1:
-					drawPlane2(x, y, YELLOW, 0);
+					drawPlane2(x, y, color, 0);
 					HAL_Delay(100);
 					clearPlane2(x, y,0);
 					break;
@@ -199,6 +209,74 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+int* change(int type,int kind){
+     if(type==0){
+		 if(kind%2==0)
+			 return type0;
+		else{
+			return type5;
+		}			
+	 }
+	 else if(type==4){
+		 return type4;
+	 }
+	 else{
+		 int base[][3]={};
+		 int ans[3][3]={{0,0,0},{0,0,0},{0,0,0}};
+		 if(type==1) base=type1;
+		 if(type==2) base=type2;
+		 if(type==3) base=type3;
+		 if(kind==0) return base;
+		 if(kind==1) {
+		     ans[0][2]=base[0][0];
+			 ans[0][0]=base[2][0];
+			 ans[2][0]=base[2][2];
+			 ans[2][2]=base[0][2];
+			 ans[0][1]=base[1][0];
+			 ans[1][2]=base[0][1];
+			 ans[2][1]=base[1][2];
+			 ans[1][0]=base[2][1];
+		 }
+		 if(kind ==2){
+			 ans[0][2]=base[2][0];
+			 ans[2][0]=base[0][2];
+			 ans[1][2]=base[1][0];
+			 ans[1][0]=base[1][2];
+			 ans[0][0]=base[2][2];
+			 ans[2][2]=base[0][0];
+			 ans[2][1]=base[0][1];
+			 ans[0][1]=base[2][1];
+		 }
+		 if(kind==3){
+			 ans[0][0]=base[0][2];
+			 ans[2][0]=base[0][0];
+			 ans[2][2]=base[2][0];
+			 ans[0][2]=base[2][2];
+			 ans[1][0]=base[0][1];
+			 ans[0][1]=base[1][2];
+			 ans[1][2]=base[2][1];
+			 ans[2][1]=base[1][0];
+		 }
+		 return ans;
+	 }
+}
+/*
+ * 随机函数，保证不出现上一次出现过的类型
+ * 随机得到旋转的角度
+ * 利用上面提到的旋转函数进行转化
+ * 顺便取得作画时所用的颜色
+ */	
+int* random(){
+	int now=rand()%5;
+	while(now==pre){
+		now=rand()%5;
+	}
+	pre=now;
+	color=now+1;
+	int type=rand()%4;
+	return change(now,type)
+}
 /*
  * 返回1代表GameOver
  * 返回0代表继续
