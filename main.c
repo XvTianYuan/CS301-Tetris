@@ -105,6 +105,7 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	srand(time(0));
 	/* USER CODE BEGIN 2 */
 	InitialPlane();
 	uint16_t x = 0;
@@ -247,37 +248,25 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-int** change(int type, int kind) {
+void change(int type, int**base) {
 	if (type == 0) {
 		type = 5;
-		return type5;
-	} else if (type == 5) {
-		type = 0;
-		return type0;
-	} else if (type == 4) {
-		return type4;
-	} else {
-		int base[4][4] = { };
-		int ans[4][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,
-				0, 0, 0 } };
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (type == 1)
-					base[i][j] = type1[i][j];
-				if (type == 2)
-					base[i][j] = type2[i][j];
-				if (type == 3)
-					base[i][j] = type3[i][j];
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				base[i][j]=type5[i][j];
 			}
 		}
-		/*
-		 if (type == 1)
-		 base = type1;
-		 if (type == 2)
-		 base = type2;
-		 if (type == 3)
-		 base = type3;
-		 */
+	} else if (type == 5) {
+		type = 0;
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				base[i][j]=type0[i][j];
+			}
+		}
+	} else if (type == 4) {
+	} else {
+		int ans[4][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,
+				0, 0, 0 } };
 		ans[0][2] = base[0][0];
 		ans[0][0] = base[2][0];
 		ans[2][0] = base[2][2];
@@ -286,7 +275,11 @@ int** change(int type, int kind) {
 		ans[1][2] = base[0][1];
 		ans[2][1] = base[1][2];
 		ans[1][0] = base[2][1];
-		return ans;
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				base[i][j]=ans[i][j];
+			}
+		}
 	}
 }
 /*
@@ -296,7 +289,7 @@ int** change(int type, int kind) {
  * 顺便取得作画时所用的颜色
  */
 int create() {
-	srand(time(0));
+
 	int now = rand() % 5;
 	while (now == pre) {
 		now = rand() % 5;
