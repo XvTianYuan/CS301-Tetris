@@ -289,18 +289,18 @@ int GameOver(int x,int y,int type[][3]){
 	return 0;
 }
 
-void record(int x,int y,int type[][3]){
-	for(int i=0;i<3;i++){
-		for(int j=0;j<3;j++){
+void record(int x,int y,int type[][4]){
+	for(int i=0;i<4;i++){
+		for(int j=0;j<4;j++){
 			if(type[i][j]==1 && x+i<30 && y+j<18 && x+i >= 0 && y+j>=0){
 				container[x+i][y+j]=1;
 			}
 		}
 	}
 }
-void delete(int x,int y,int type[][3]){
-	for(int i=0;i<3;i++){
-		for(int j=0;j<3;j++){
+void delete(int x,int y,int type[][4]){
+	for(int i=0;i<4;i++){
+		for(int j=0;j<4;j++){
 			if(type[i][j]==1 && x+i<30 && y+j<18 && x+i >= 0 && y+j>=0){
 				container[x+i][y+j]=0;
 			}
