@@ -21,9 +21,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "lcd.h"
-#include<stdio.h>
-#include<stdlib.h>
-#include<time.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -53,23 +50,29 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-int moveDown(int x,int y,int type[][3],uint16_t color);
-int* change(int type,int kind);
-int* random();
+int moveDown(int x, int y, int type[][4], uint16_t color);
+int** change(int type, int kind);
+int create();
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int type1[4][4] = { { 0, 0, 0 ,0}, { 1, 1, 1,0 }, { 0, 1, 0,0 },{0,0,0,0} };
-int type2[4][4] = { { 0, 1, 0,0 }, { 0, 1, 0,0 }, { 0, 1, 1,0 },{0,0,0,0} };
+int type1[][4] = { { 0, 0, 0, 0 }, { 1, 1, 1, 0 }, { 0, 1, 0, 0 },
+		{ 0, 0, 0, 0 } };
+int type2[][4] = { { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 1, 0 },
+		{ 0, 0, 0, 0 } };
 //int type2[][3] = { { 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 1 } };
-int type3[4][4] = { { 0, 0, 0,0 }, { 1, 1, 0,0 }, { 0, 1, 1,0 },{0,0,0,0} };
-int type4[4][4] = { { 1, 1, 0,0 }, { 1, 1, 0 ,0}, { 0, 0, 0 ,0},{0,0,0,0} };
-int type0[4][4] = {{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0}};
-int type5[4][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,1,1,1}};
-int shapeType = 0;//0代表使用3*3矩阵的形状，1代表长条
+int type3[][4] = { { 0, 0, 0, 0 }, { 1, 1, 0, 0 }, { 0, 1, 1, 0 },
+		{ 0, 0, 0, 0 } };
+int type4[][4] = { { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 } };
+int type0[][4] = { { 1, 0, 0, 0 }, { 1, 0, 0, 0 }, { 1, 0, 0, 0 },
+		{ 1, 0, 0, 0 } };
+int type5[][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
+		{ 1, 1, 1, 1 } };
+int shapeType = 0; //0代表使用3*3矩阵的形状，1代表正方形，2代表长条
 uint16_t container[30][18];
 uint16_t color;
 int pre;
@@ -81,7 +84,7 @@ int pre;
  */
 int main(void) {
 	/* USER CODE BEGIN 1 */
-	srand((unsigned)time(NULL));
+
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -108,59 +111,94 @@ int main(void) {
 	uint16_t y = 10;
 	uint16_t tmp = 0;
 
-//	for(int i = 0; i<30; i++){
-//		container[i][0] = 1;
-//		container[i][17] = 1;
-//	}
-//	for(int j = 0; j<18; j++){
-//		container[27][j] = 1;
-//	}
-	for(int i = 0; i<30; i++){
-		for(int j = 0; j <18; j++){
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 18; j++) {
 			container[i][j] = 0;
 		}
 	}
-	pre=-1;
-	color=0;
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+	int t = 0;
 	while (1) {
 		x = 0;
 		y = 10;
-//		if(GameOver(x,y,type2)==0){
-//			drawPlane(x, y, type2, BLUE);
-//		}else{
-//			LCD_ShowString(50,40,200,50,32,(uint8_t)"Game Over!");
-//			break;
-//		}
-        int base[4][4]=create();
-		drawPlane(x, y, base, color);
+		int base[4][4];
+		int idx = create();
+		switch (idx) {
+		case 0:
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					base[i][j] = type0[i][j];
+				}
+			}
+			break;
+		case 1:
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					base[i][j] = type1[i][j];
+				}
+			}
+			break;
+		case 2:
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					base[i][j] = type2[i][j];
+				}
+			}
+			break;
+		case 3:
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					base[i][j] = type3[i][j];
+				}
+			}
+			break;
+		case 4:
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					base[i][j] = type4[i][j];
+				}
+			}
+			break;
+		}
+
+		LCD_ShowNum(20, 40, t, 8, 12);
+		t++;
+		if (GameOver(x, y, base) == 0) {
+			drawPlane(x, y, base, color);
+			record(x, y, base);
+		} else {
+			LCD_ShowString(30, 40, 200, 24, 24, (uint8_t*) "Game Over!");
+			break;
+		}
+		HAL_Delay(400);
+//		drawPlane(x, y, type1, BLUE);
 		int breakOrNot = 0;
-		while(breakOrNot==0){
-			switch (shapeType){
-				case 0:
-					HAL_Delay(100);
-					int state = moveDown(x,y,base,color);
-					if(state == 1){
-						x++;
-					}else{
-						breakOrNot = 1;
-					}
-	//				drawPlane(x, y, type2, RED);
-	//				HAL_Delay(100);
-	//				clearPlane(x,y,type2);
-					break;
-				case 1:
-					drawPlane2(x, y, color, 0);
-					HAL_Delay(100);
-					clearPlane2(x, y,0);
-					break;
+		int tt = 0;
+		while (breakOrNot == 0) {
+			LCD_ShowNum(20, 60, tt++, 8, 12);
+			switch (shapeType) {
+			case 0:
+				HAL_Delay(100);
+				int state = moveDown(x, y, base, color);
+				if (state == 1) {
+					x++;
+				} else {
+					breakOrNot = 1;
+				}
+				break;
+			case 1:
+				drawPlane2(x, y, YELLOW, 0);
+				HAL_Delay(100);
+				clearPlane2(x, y, 0);
+				break;
 			}
 		}
 	}
-
+	/* USER CODE END WHILE */
 	/* USER CODE END 3 */
 }
 
@@ -209,100 +247,126 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-
-int* change(int type,int kind){
-     if(type==0){
-		 type=5;
+int** change(int type, int kind) {
+	if (type == 0) {
+		type = 5;
 		return type5;
-	 }
-	 else if(type==5){
-		 type=0;
-		 return type0;
-	 }
-	 else if(type==4){
-		 return type4;
-	 }
-	 else{
-		 int base[4][4]={};
-		 int ans[4][4]={{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-		 if(type==1) base=type1;
-		 if(type==2) base=type2;
-		 if(type==3) base=type3;
-	     ans[0][2]=base[0][0];
-		 ans[0][0]=base[2][0];
-		 ans[2][0]=base[2][2];
-		 ans[2][2]=base[0][2];
-    	 ans[0][1]=base[1][0];
-		 ans[1][2]=base[0][1];
-		 ans[2][1]=base[1][2];
-		 ans[1][0]=base[2][1];
-		 return ans;
-	 }
+	} else if (type == 5) {
+		type = 0;
+		return type0;
+	} else if (type == 4) {
+		return type4;
+	} else {
+		int base[4][4] = { };
+		int ans[4][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,
+				0, 0, 0 } };
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (type == 1)
+					base[i][j] = type1[i][j];
+				if (type == 2)
+					base[i][j] = type2[i][j];
+				if (type == 3)
+					base[i][j] = type3[i][j];
+			}
+		}
+		/*
+		 if (type == 1)
+		 base = type1;
+		 if (type == 2)
+		 base = type2;
+		 if (type == 3)
+		 base = type3;
+		 */
+		ans[0][2] = base[0][0];
+		ans[0][0] = base[2][0];
+		ans[2][0] = base[2][2];
+		ans[2][2] = base[0][2];
+		ans[0][1] = base[1][0];
+		ans[1][2] = base[0][1];
+		ans[2][1] = base[1][2];
+		ans[1][0] = base[2][1];
+		return ans;
+	}
 }
 /*
  * 随机函数，保证不出现上一次出现过的类型
  * 随机得到旋转的角度
  * 利用上面提到的旋转函数进行转化
  * 顺便取得作画时所用的颜色
- */	
-int* create(){
-	int now=rand()%5;
-	while(now==pre){
-		now=rand()%5;
+ */
+int create() {
+	int now = rand() % 5;
+	while (now == pre) {
+		now = rand() % 5;
 	}
-	pre=now;
-	color=now+1;
-	int type=rand()%4;
-	if(type==0) {
-		color=BLUE;
-		return type0;
+	pre = now;
+	//int type = rand() % 4;
+	if (now == 0) {
+		color = BLUE;
+		//return type0;
 	}
-	if(type==1) {
-		color=YELLOW;
-		return type1;
+	if (now == 1) {
+		color = YELLOW;
+		//return type1;
 	}
-	if(type==2) {
-		color=RED;
-		return type2;
+	if (now == 2) {
+		color = RED;
+		//return type2;
 	}
-	if(type==3) {
-		color=GREEN;
-		return type3;
+	if (now == 3) {
+		color = GREEN;
+		//return type3;
 	}
-	if(type==4) {
-		color=BRRED;
-		return type4;
+	if (now == 4) {
+		color = BRRED;
+		//return type4;
 	}
+	return now;
 }
 /*
  * 返回1代表GameOver
  * 返回0代表继续
  */
-int GameOver(int x,int y,int type[][3]){
-	for(int i=0;i<3;i++){
-		for(int j=0;j<3;j++){
-			if(container[x+i][y+j]==1 && type[i][j]==1){
-				return 1;
-			}
+int GameOver(int x, int y, int type[][4]) {
+	int sum = 0;
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 18; j++) {
+			sum += container[i][j];
 		}
+	}
+	record(x, y, type);
+	int sum2 = 0;
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 18; j++) {
+			sum2 += container[i][j];
+		}
+	}
+	LCD_ShowNum(20, 20, (sum2 - sum), 8, 12);
+	if (sum2 - sum != 4) {
+		return 1;
+	} else {
+		delete(x, y, type);
 	}
 	return 0;
 }
 
-void record(int x,int y,int type[][4]){
-	for(int i=0;i<4;i++){
-		for(int j=0;j<4;j++){
-			if(type[i][j]==1 && x+i<30 && y+j<18 && x+i >= 0 && y+j>=0){
-				container[x+i][y+j]=1;
+void record(int x, int y, int type[][4]) {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (type[i][j] == 1 && x + i < 30 && y + j < 18 && x + i >= 0
+					&& y + j >= 0) {
+				container[x + i][y + j] = 1;
 			}
 		}
 	}
 }
-void delete(int x,int y,int type[][4]){
-	for(int i=0;i<4;i++){
-		for(int j=0;j<4;j++){
-			if(type[i][j]==1 && x+i<30 && y+j<18 && x+i >= 0 && y+j>=0){
-				container[x+i][y+j]=0;
+void delete(int x, int y, int type[][4]) {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (type[i][j] == 1 && x + i < 30 && y + j < 18 && x + i >= 0
+					&& y + j >= 0) {
+				container[x + i][y + j] = 0;
 			}
 		}
 	}
@@ -311,12 +375,12 @@ void delete(int x,int y,int type[][4]){
  * 将方块向下移动
  * 返回值表示有没有走到底，0表示到底了，1表示还没有
  */
-int moveDown(int x,int y,int type[][3],uint16_t color){
-	if(checkCrash(x,y,type,0)==0){
-		clearPlane(x,y,type);
-		drawPlane(x+1,y,type,color);
+int moveDown(int x, int y, int type[][4], uint16_t color) {
+	if (checkCrash(x, y, type, 0) == 0) {
+		clearPlane(x, y, type);
+		drawPlane(x + 1, y, type, color);
 		return 1;
-	}else{
+	} else {
 		return 0;
 	}
 }
@@ -324,100 +388,100 @@ int moveDown(int x,int y,int type[][3],uint16_t color){
  * 检查碰撞，direction是行动方向，0 = down，1 = left，2 = right
  * 有碰撞则返回1，无则返回0
  */
-int checkCrash(int x,int y,int type[][3],int direction){
+int checkCrash(int x, int y, int type[][4], int direction) {
 	int sum = 0;
-	switch(direction){
-	case 0://down
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+	switch (direction) {
+	case 0:	//down
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum += container[i][j];
 			}
 		}
-		delete(x,y,type);
-		record(x+1,y,type);
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+		delete(x, y, type);
+		record(x + 1, y, type);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum -= container[i][j];
 			}
 		}
-		if(sum == 0){
+		if (sum == 0) {
 			return 0;
-		}else{
-			delete(x+1,y,type);
-			record(x,y,type);
+		} else {
+			delete(x + 1, y, type);
+			record(x, y, type);
 			return 1;
 		}
 		break;
-	case 1://left
+	case 1:	//left
 		sum = 0;
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum += container[i][j];
 			}
 		}
-		delete(x,y,type);
-		record(x,y+1,type);
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+		delete(x, y, type);
+		record(x, y + 1, type);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum -= container[i][j];
 			}
 		}
-		delete(x,y+1,type);
-		record(x,y,type);
-		if(sum == 0){
+		delete(x, y + 1, type);
+		record(x, y, type);
+		if (sum == 0) {
 			return 0;
-		}else{
+		} else {
 			return 1;
 		}
 		break;
-	case 2://right
+	case 2:	//right
 		sum = 0;
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum += container[i][j];
 			}
 		}
-		delete(x,y,type);
-		record(x,y-1,type);
-		for(int i=0;i<30;i++){
-			for(int j=0;j<18;j++){
+		delete(x, y, type);
+		record(x, y - 1, type);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 18; j++) {
 				sum -= container[i][j];
 			}
 		}
-		delete(x,y-1,type);
-		record(x,y,type);
-		if(sum == 0){
+		delete(x, y - 1, type);
+		record(x, y, type);
+		if (sum == 0) {
 			return 0;
-		}else{
+		} else {
 			return 1;
 		}
 		break;
 	}
 }
-void InitialPlane(){
-	LCD_Set_Window(0,0,165,253);
-	LCD_DrawRectangle(0,248,160,253);
-	LCD_DrawRectangle(160,0,165,253);
+void InitialPlane() {
+//	LCD_Set_Window(0,0,165,253);
+	LCD_DrawRectangle(0, 248, 160, 253);
+	LCD_DrawRectangle(160, 0, 165, 253);
 	LCD_DrawLine(160, 248, 165, 248);
 //	LCD_Color_Fill(0,250,160,255,CYAN);
 //	LCD_Color_Fill(160,0,165,255,BRRED);
 //	LCD_Clear(GRAY);
 }
 
-void drawPlane(uint16_t x, uint16_t y, int array[][3], uint16_t color) {
+void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
 //	LCD_ShowNum(30, 40,array[0][0],2, 24);
-	for (uint16_t i = 0; i < 3; i++) {
-		for (uint16_t j = 0; j < 3; j++) {
+	for (uint16_t i = 0; i < 4; i++) {
+		for (uint16_t j = 0; j < 4; j++) {
 			if (array[i][j] == 1) {
 				DrawPoint(y + j, x + i, color);
 			}
 		}
 	}
 }
-void clearPlane(uint16_t x, uint16_t y, int array[][3]) {
+void clearPlane(uint16_t x, uint16_t y, int array[][4]) {
 //	LCD_ShowNum(30, 40,array[0][0],2, 24);
-	for (uint16_t i = 0; i < 3; i++) {
-		for (uint16_t j = 0; j < 3; j++) {
+	for (uint16_t i = 0; i < 4; i++) {
+		for (uint16_t j = 0; j < 4; j++) {
 			if (array[i][j] == 1) {
 				ClearPoint(y + j, x + i);
 			}
@@ -426,26 +490,26 @@ void clearPlane(uint16_t x, uint16_t y, int array[][3]) {
 	InitialPlane();
 }
 
-void drawPlane2(uint16_t x, uint16_t y,uint16_t color, int type){
-	if(type == 0){
+void drawPlane2(uint16_t x, uint16_t y, uint16_t color, int type) {
+	if (type == 0) {
 		for (uint16_t i = x; i < x + 4; i++) {
-			DrawPoint(i, y+1, color);
+			DrawPoint(i, y + 1, color);
 		}
-	}else if(type == 1){
+	} else if (type == 1) {
 		for (uint16_t i = y; i < y + 4; i++) {
-			DrawPoint(x+1, i, color);
+			DrawPoint(x + 1, i, color);
 		}
 	}
 
 }
-void clearPlane2(uint16_t x, uint16_t y, int type){
-	if(type == 0){
+void clearPlane2(uint16_t x, uint16_t y, int type) {
+	if (type == 0) {
 		for (uint16_t i = x; i < x + 4; i++) {
-			ClearPoint(i, y+1);
+			ClearPoint(i, y + 1);
 		}
-	}else if(type == 1){
+	} else if (type == 1) {
 		for (uint16_t i = y; i < y + 4; i++) {
-			ClearPoint(x+1, i);
+			ClearPoint(x + 1, i);
 		}
 	}
 	InitialPlane();
@@ -459,11 +523,11 @@ void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color) {
 		}
 	}
 
-	for (uint16_t i= x1*8;i < x1*8 + 8; i++){
-		LCD_Fast_DrawPoint(i,y1*8,BLACK);
-		LCD_Fast_DrawPoint(i,y1*8+8,BLACK);
-		LCD_Fast_DrawPoint(x1*8,(y1*8+(i-x1*8)),BLACK);
-		LCD_Fast_DrawPoint((x1*8+8),(y1*8+(i-x1*8)),BLACK);
+	for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
+		LCD_Fast_DrawPoint(i, y1 * 8, BLACK);
+		LCD_Fast_DrawPoint(i, y1 * 8 + 8, BLACK);
+		LCD_Fast_DrawPoint(x1 * 8, (y1 * 8 + (i - x1 * 8)), BLACK);
+		LCD_Fast_DrawPoint((x1 * 8 + 8), (y1 * 8 + (i - x1 * 8)), BLACK);
 	}
 }
 void ClearPoint(uint16_t x1, uint16_t y1) {
@@ -473,11 +537,11 @@ void ClearPoint(uint16_t x1, uint16_t y1) {
 		}
 	}
 
-	for (uint16_t i= x1*8;i < x1*8 + 8; i++){
-		LCD_Fast_DrawPoint(i,y1*8,WHITE);
-		LCD_Fast_DrawPoint(i,y1*8+8,WHITE);
-		LCD_Fast_DrawPoint(x1*8,(y1*8+(i-x1*8)),WHITE);
-		LCD_Fast_DrawPoint((x1*8+8),(y1*8+(i-x1*8)),WHITE);
+	for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
+		LCD_Fast_DrawPoint(i, y1 * 8, WHITE);
+		LCD_Fast_DrawPoint(i, y1 * 8 + 8, WHITE);
+		LCD_Fast_DrawPoint(x1 * 8, (y1 * 8 + (i - x1 * 8)), WHITE);
+		LCD_Fast_DrawPoint((x1 * 8 + 8), (y1 * 8 + (i - x1 * 8)), WHITE);
 	}
 }
 /* USER CODE END 4 */
