@@ -69,10 +69,10 @@ int type3[][4] = { { 0, 0, 0, 0 }, { 1, 1, 0, 0 }, { 0, 1, 1, 0 },
 		{ 0, 0, 0, 0 } };
 int type4[][4] = { { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 0, 0, 0, 0 },
 		{ 0, 0, 0, 0 } };
-int type0[][4] = { { 1, 0, 0, 0 }, { 1, 0, 0, 0 }, { 1, 0, 0, 0 },
-		{ 1, 0, 0, 0 } };
-int type5[][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
-		{ 1, 1, 1, 1 } };
+int type5[][4] = { { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 },
+		{ 0, 1, 0, 0 } };
+int type0[][4] = { { 0, 0, 0, 0 },{ 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }
+		 };
 int shapeType = 0; //0代表使用3*3矩阵的形状，1代表正方形，2代表长条
 uint16_t container[31][20];
 uint16_t color;
@@ -173,7 +173,7 @@ int main(void) {
 			break;
 		}
 
-		LCD_ShowNum(20, 40, t, 8, 12);
+		LCD_ShowNum(20, 40, t, 4, 12);
 		t++;
 
 		if (GameOver(x, y, base) == 0) {
@@ -190,23 +190,14 @@ int main(void) {
 		int shape = idx;
 
 		while (breakOrNot == 0) {
-			LCD_ShowNum(20, 60, tt++, 8, 12);
-			switch (shapeType) {
-			case 0:
-				HAL_Delay(100);
-				shape = change(shape,x,y);
-				int state = moveDown(x, y, base, color);
-				if (state == 1) {
-					x++;
-				} else {
-					breakOrNot = 1;
-				}
-				break;
-			case 1:
-				drawPlane2(x, y, YELLOW, 0);
-				HAL_Delay(100);
-				clearPlane2(x, y, 0);
-				break;
+			LCD_ShowNum(20, 60, tt++, 4, 12);
+			HAL_Delay(100);
+			shape = change(shape,x,y);
+			int state = moveDown(x, y, base, color);
+			if (state == 1) {
+				x++;
+			} else {
+				breakOrNot = 1;
 			}
 		}
 	}
@@ -427,7 +418,7 @@ int GameOver(int x, int y, int type[][4]) {
 			sum2 += container[i][j];
 		}
 	}
-	LCD_ShowNum(20, 20, (sum2 - sum), 8, 12);
+	LCD_ShowNum(20, 20, (sum2 - sum), 4, 12);
 	if (sum2 - sum != 4) {
 		return 1;
 	} else {
@@ -435,7 +426,9 @@ int GameOver(int x, int y, int type[][4]) {
 	}
 	return 0;
 }
-
+/*
+ * 将当前位置(x,y)的形状写入container
+ */
 void record(int x, int y, int type[][4]) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -446,6 +439,9 @@ void record(int x, int y, int type[][4]) {
 		}
 	}
 }
+/*
+ * 将container位置(x,y)的形状删除
+ */
 void delete(int x, int y, int type[][4]) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -544,6 +540,9 @@ int checkCrash(int x, int y, int type[][4], int direction) {
 		break;
 	}
 }
+/*
+ * 初始化画布和基础布局
+ */
 void InitialPlane() {
 //	LCD_Set_Window(0,0,165,253);
 	LCD_DrawRectangle(0, 248, 160, 253);
@@ -553,7 +552,9 @@ void InitialPlane() {
 //	LCD_Color_Fill(160,0,165,255,BRRED);
 //	LCD_Clear(GRAY);
 }
-
+/*
+ * 在画布的位置(x,y)加入有形状的方块组
+ */
 void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
 //	LCD_ShowNum(31, 40,array[0][0],2, 24);
 	for (uint16_t i = 0; i < 4; i++) {
@@ -564,6 +565,9 @@ void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
 		}
 	}
 }
+/*
+ * 在画布的位置(x,y)擦除方块组
+ */
 void clearPlane(uint16_t x, uint16_t y, int array[][4]) {
 //	LCD_ShowNum(31, 40,array[0][0],2, 24);
 	for (uint16_t i = 0; i < 4; i++) {
@@ -575,33 +579,9 @@ void clearPlane(uint16_t x, uint16_t y, int array[][4]) {
 	}
 	InitialPlane();
 }
-
-void drawPlane2(uint16_t x, uint16_t y, uint16_t color, int type) {
-	if (type == 0) {
-		for (uint16_t i = x; i < x + 4; i++) {
-			DrawPoint(i, y + 1, color);
-		}
-	} else if (type == 1) {
-		for (uint16_t i = y; i < y + 4; i++) {
-			DrawPoint(x + 1, i, color);
-		}
-	}
-
-}
-void clearPlane2(uint16_t x, uint16_t y, int type) {
-	if (type == 0) {
-		for (uint16_t i = x; i < x + 4; i++) {
-			ClearPoint(i, y + 1);
-		}
-	} else if (type == 1) {
-		for (uint16_t i = y; i < y + 4; i++) {
-			ClearPoint(x + 1, i);
-		}
-	}
-	InitialPlane();
-
-}
-
+/*
+ * 像素放大，每一个方块是8*8像素点的集合。
+ */
 void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color) {
 	for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
 		for (uint16_t j = y1 * 8; j < y1 * 8 + 8; j++) {
@@ -616,6 +596,9 @@ void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color) {
 		LCD_Fast_DrawPoint((x1 * 8 + 8), (y1 * 8 + (i - x1 * 8)), BLACK);
 	}
 }
+/*
+ * 将方块擦除
+ */
 void ClearPoint(uint16_t x1, uint16_t y1) {
 	for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
 		for (uint16_t j = y1 * 8; j < y1 * 8 + 8; j++) {
