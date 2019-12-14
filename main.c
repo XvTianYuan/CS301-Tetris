@@ -51,6 +51,9 @@ int moveLeft(int x, int y, int type[][4], uint16_t color);
 int moveRight(int x, int y, int type[][4], uint16_t color);
 int rotate();
 int BcheckCrash(int x, int y, int type[][4], int direction);
+void inheritence();
+void randomCreateFirstOne();
+void createNext(int idxx);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -87,10 +90,17 @@ int type0[][4] = { { 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 },
                    { 0, 0, 0, 0 } };
 int shapeType = 0; //0代表使用3*3矩阵的形状，1代表正方形，2代表长条
 uint16_t container[31][20];
+uint16_t static_container[31][20];
+uint16_t colorContainer[31][20];
 uint16_t color;
 int pre;
 int base[4][4];
+int next[4][4];
 int direction_type;
+int nextx=2;
+int nexty=23;
+int nextIDX;
+uint16_t next_color;
 /* USER CODE END 0 */
 
 /**
@@ -102,7 +112,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
+
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -130,8 +140,7 @@ int main(void)
     InitialPlane();
     uint16_t x = 0;
     uint16_t y = 10;
-    uint16_t tmp = 0;
-
+    next_color=RED;
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 20; j++) {
             container[i][j] = 0;
@@ -143,12 +152,14 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     int t = 0;
+    nextIDX=create();
     while (1) {
         x = 0;
-        y = rand() % 18;
+        y = rand() % 16;
+        clearPlane(nextx,nexty,next);
+        color=next_color;
+        int idx=nextIDX;
 
-        int idx = create();
-//		idx = 0;
         switch (idx) {
             case 0:
                 for (int i = 0; i < 4; i++) {
@@ -193,6 +204,9 @@ int main(void)
         if (GameOver(x, y, base) == 0) {
             drawPlane(x, y, base, color);
             record(x, y, base);
+            nextIDX = create();
+            createNext(nextIDX);
+            drawPlane(nextx,nexty,next,next_color);
         } else {
             LCD_ShowString(31, 40, 200, 24, 24, (uint8_t*) "Game Over!");
             break;
@@ -208,21 +222,28 @@ int main(void)
             HAL_Delay(10);
             //shape = change(shape, x, y);
             int state = moveDown(x, y, base, color);
+            int state2=1;
+            int state3=1;
             if (state == 1) {
                 x++;
                 switch (direction_type){
                     case 1:
-                        moveLeft(x,y,base,color);
-                        y--;
+                        state2=moveLeft(x,y,base,color);
+                        if(state2==1){
+                            y--;
+                        }
                         direction_type=0;
                         break;
                     case 2:
-                        moveRight(x,y,base,color);
-                        y++;
+                        state3=moveRight(x,y,base,color);
+                        if(state3==1){
+                            y++;
+                        }
                         direction_type=0;
                         break;
                     case 3:
                         //rotate();
+                        shape = change(shape, x, y);
                         direction_type=0;
                         break;
                     default:
@@ -230,6 +251,9 @@ int main(void)
 
                 }
             } else {
+            	record2(x,y,base);
+            	recordColor(x,y,base,color);
+            	deleteLine(x);
                 breakOrNot = 1;
             }
 //			for (int i = 15; i < 31; i++) {
@@ -245,7 +269,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 }
   /* USER CODE END 3 */
-
+//shape = change(shape, x, y);
 
 /**
   * @brief System Clock Configuration
@@ -256,7 +280,7 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -266,7 +290,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -474,27 +498,85 @@ int create() {
     pre = now;
     //int type = rand() % 4;
     if (now == 0) {
-        color = BLUE;
+        //color = BLUE;
+        next_color=BLUE;
+
+
         //return type0;
     }
     if (now == 1) {
-        color = YELLOW;
+        //color = YELLOW;
+        next_color=YELLOW;
+
+
         //return type1;
     }
     if (now == 2) {
-        color = RED;
+        //color = RED;
+        next_color=RED;
+
         //return type2;
     }
     if (now == 3) {
-        color = GREEN;
+        //color = GREEN;
+        next_color=GREEN;
+
         //return type3;
     }
     if (now == 4) {
-        color = BRRED;
+        //color = BRRED;
+        next_color=BRRED;
         //return type4;
     }
     return now;
 }
+
+
+void createNext(int idxx){
+    switch (idxx) {
+        case 0:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type0[i][j];
+                }
+            }
+            break;
+        case 1:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type1[i][j];
+                }
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type2[i][j];
+                }
+            }
+            break;
+        case 3:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type3[i][j];
+                }
+            }
+            break;
+        case 4:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type4[i][j];
+                }
+            }
+            break;
+    }
+}
+
 /*
  * 返回1代表GameOver
  * 返回0代表继续
@@ -534,7 +616,32 @@ void record(int x, int y, int type[][4]) {
         }
     }
 }
-
+/*
+ * 将停止的形状方块写入static_container
+ */
+void record2(int x, int y, int type[][4]) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (type[i][j] == 1 && x + i < 31 && y + j < 20 && x + i >= 0
+                && y + j >= 0) {
+                static_container[x + i][y + j] = 1;
+            }
+        }
+    }
+}
+/*
+ * 将颜色信息记录下来
+ */
+void recordColor(int x, int y, int type[][4],uint16_t col) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (type[i][j] == 1 && x + i < 31 && y + j < 20 && x + i >= 0
+                && y + j >= 0) {
+                colorContainer[x + i][y + j] = col;
+            }
+        }
+    }
+}
 /*
  * 将container位置(x,y)的形状删�?
  */
@@ -561,8 +668,42 @@ int moveDown(int x, int y, int type[][4], uint16_t color) {
         return 0;
     }
 }
-
-
+void deleteLine(int x){
+	for(int i=0;i<4;i++){
+		if(x+i<31){
+			int full = 1;
+			for(int j = 0;j<20;j++){
+				if(static_container[x+i][j]==0){
+					full = 0;
+				}
+			}
+			if(full == 1){
+				executeDelete(x+i);
+			}
+		}
+	}
+}
+void executeDelete(int x){
+	for(int j=0;j<20;j++){
+		ClearPoint(j,x);
+		container[x][j] = 0;
+		static_container[x][j] = 0;
+	}
+	for(int i = x-1;i>=0;i--){
+		for(int j=0;j<20;j++){
+			if(static_container[i][j]==1){
+				ClearPoint(j,i);
+				uint16_t col = colorContainer[i][j];
+				container[i][j] = 0;
+				static_container[i][j] = 0;
+				DrawPoint(j,i+1,col);
+				container[i+1][j] = 1;
+				static_container[i+1][j] = 1;
+				colorContainer[i+1][j] = col;
+			}
+		}
+	}
+}
 int moveRight(int x, int y, int type[][4], uint16_t color) {
     if (BcheckCrash(x, y, type, 2) == 0) {
         clearPlane(x, y, type);
@@ -717,8 +858,6 @@ int BcheckCrash(int x, int y, int type[][4], int direction) {
                 record(x+1,y,type);
                 return 0;
             } else {
-
-
                 //delete(x + 1, y, type);
                 //record(x, y, type);
                 return 1;
