@@ -54,6 +54,12 @@ int BcheckCrash(int x, int y, int type[][4], int direction);
 void inheritence();
 void randomCreateFirstOne();
 void createNext(int idxx);
+void record2(int x, int y, int type[][4]);
+void executeDelete(int x);
+void deleteLine(int x);
+void recordColor(int x, int y, int type[][4],uint16_t col);
+void createNext2(int idxx);
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -96,11 +102,18 @@ uint16_t color;
 int pre;
 int base[4][4];
 int next[4][4];
+
 int direction_type;
 int nextx=2;
 int nexty=23;
 int nextIDX;
 uint16_t next_color;
+
+int next2[4][4];
+int next2x=8;
+int next2y=23;
+int next2IDX;
+uint16_t next_2_color;
 /* USER CODE END 0 */
 
 /**
@@ -109,56 +122,63 @@ uint16_t next_color;
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
     LCD_Init();
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  /* USER CODE BEGIN 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    /* USER CODE BEGIN 2 */
     time_t ts;
     unsigned seed;
     seed = time(0);
     srand(seed);
     InitialPlane();
-    uint16_t x = 0;
-    uint16_t y = 10;
+    int x = 0;
+    int y = 10;
     next_color=RED;
+    next_2_color=BLUE;
+
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 20; j++) {
             container[i][j] = 0;
         }
     }
 
-  /* USER CODE END 2 */
+    /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
     int t = 0;
-    nextIDX=create();
+    next2IDX=create();
+
+
     while (1) {
         x = 0;
         y = rand() % 16;
         clearPlane(nextx,nexty,next);
+        clearPlane(next2x,next2y,next2);
         color=next_color;
         int idx=nextIDX;
+        nextIDX=next2IDX;
+        next_color=next_2_color;
 
         switch (idx) {
             case 0:
@@ -204,9 +224,11 @@ int main(void)
         if (GameOver(x, y, base) == 0) {
             drawPlane(x, y, base, color);
             record(x, y, base);
-            nextIDX = create();
+            next2IDX = create();
+            createNext2(next2IDX);
             createNext(nextIDX);
             drawPlane(nextx,nexty,next,next_color);
+            drawPlane(next2x,next2y,next2,next_2_color);
         } else {
             LCD_ShowString(31, 40, 200, 24, 24, (uint8_t*) "Game Over!");
             break;
@@ -251,11 +273,19 @@ int main(void)
 
                 }
             } else {
-            	record2(x,y,base);
-            	recordColor(x,y,base,color);
-            	deleteLine(x);
+                record2(x,y,base);
+                recordColor(x,y,base,color);
+                deleteLine(x);
                 breakOrNot = 1;
             }
+//            for(int i = 0; i<31;i++){
+//                for(int j=0;j<20;j++){
+//                    if(static_container[i][j]==1){
+//                        uint16_t col = colorContainer[i][j];
+//                        DrawPoint(j,i,col);
+//                    }
+//                }
+//            }
 //			for (int i = 15; i < 31; i++) {
 //				for (int j = 12; j < 20; j++) {
 //					LCD_ShowNum(0+(j-12)*12,20+(i-15)*12,container[i][j],2,12);
@@ -268,7 +298,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 }
-  /* USER CODE END 3 */
+/* USER CODE END 3 */
 //shape = change(shape, x, y);
 
 /**
@@ -277,32 +307,32 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the CPU, AHB and APB busses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    /** Initializes the CPU, AHB and APB busses clocks
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Initializes the CPU, AHB and APB busses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
 
 /**
@@ -312,60 +342,60 @@ void SystemClock_Config(void)
   */
 static void MX_GPIO_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : KEY_WK_Pin */
-  GPIO_InitStruct.Pin = KEY_WK_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(KEY_WK_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : KEY_WK_Pin */
+    GPIO_InitStruct.Pin = KEY_WK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    HAL_GPIO_Init(KEY_WK_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : KEY0_Pin */
-  GPIO_InitStruct.Pin = KEY0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(KEY0_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : KEY0_Pin */
+    GPIO_InitStruct.Pin = KEY0_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(KEY0_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LED0_Pin */
-  GPIO_InitStruct.Pin = LED0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED0_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : LED0_Pin */
+    GPIO_InitStruct.Pin = LED0_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LED0_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : KEY1_Pin */
-  GPIO_InitStruct.Pin = KEY1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(KEY1_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : KEY1_Pin */
+    GPIO_InitStruct.Pin = KEY1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(KEY1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LED1_Pin */
-  GPIO_InitStruct.Pin = LED1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : LED1_Pin */
+    GPIO_InitStruct.Pin = LED1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 1);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 1);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 2);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 2);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
@@ -499,33 +529,38 @@ int create() {
     //int type = rand() % 4;
     if (now == 0) {
         //color = BLUE;
-        next_color=BLUE;
+        //next_color=BLUE;
+        next_2_color=BLUE;
 
 
         //return type0;
     }
     if (now == 1) {
         //color = YELLOW;
-        next_color=YELLOW;
+        //next_color=YELLOW;
+        next_2_color=YELLOW;
 
 
         //return type1;
     }
     if (now == 2) {
         //color = RED;
-        next_color=RED;
+        //next_color=RED;
+        next_2_color=RED;
 
         //return type2;
     }
     if (now == 3) {
         //color = GREEN;
-        next_color=GREEN;
+        //next_color=GREEN;
+        next_2_color=GREEN;
 
         //return type3;
     }
     if (now == 4) {
         //color = BRRED;
-        next_color=BRRED;
+        //next_color=BRRED;
+        next_2_color=BRRED;
         //return type4;
     }
     return now;
@@ -577,6 +612,52 @@ void createNext(int idxx){
     }
 }
 
+
+
+void createNext2(int idxx){
+    switch (idxx) {
+        case 0:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type0[i][j];
+                }
+            }
+            break;
+        case 1:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type1[i][j];
+                }
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type2[i][j];
+                }
+            }
+            break;
+        case 3:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type3[i][j];
+                }
+            }
+            break;
+        case 4:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type4[i][j];
+                }
+            }
+            break;
+    }
+}
 /*
  * 返回1代表GameOver
  * 返回0代表继续
@@ -669,40 +750,40 @@ int moveDown(int x, int y, int type[][4], uint16_t color) {
     }
 }
 void deleteLine(int x){
-	for(int i=0;i<4;i++){
-		if(x+i<31){
-			int full = 1;
-			for(int j = 0;j<20;j++){
-				if(static_container[x+i][j]==0){
-					full = 0;
-				}
-			}
-			if(full == 1){
-				executeDelete(x+i);
-			}
-		}
-	}
+    for(int i=0;i<4;i++){
+        if(x+i<31){
+            int full = 1;
+            for(int j = 0;j<20;j++){
+                if(static_container[x+i][j]==0){
+                    full = 0;
+                }
+            }
+            if(full == 1){
+                executeDelete(x+i);
+            }
+        }
+    }
 }
 void executeDelete(int x){
-	for(int j=0;j<20;j++){
-		ClearPoint(j,x);
-		container[x][j] = 0;
-		static_container[x][j] = 0;
-	}
-	for(int i = x-1;i>=0;i--){
-		for(int j=0;j<20;j++){
-			if(static_container[i][j]==1){
-				ClearPoint(j,i);
-				uint16_t col = colorContainer[i][j];
-				container[i][j] = 0;
-				static_container[i][j] = 0;
-				DrawPoint(j,i+1,col);
-				container[i+1][j] = 1;
-				static_container[i+1][j] = 1;
-				colorContainer[i+1][j] = col;
-			}
-		}
-	}
+    for(int j=0;j<20;j++){
+        ClearPoint(j,x);
+        container[x][j] = 0;
+        static_container[x][j] = 0;
+    }
+    for(int i = x-1;i>=0;i--){
+        for(int j=0;j<20;j++){
+            if(static_container[i][j]==1){
+                ClearPoint(j,i);
+                uint16_t col = colorContainer[i][j];
+                container[i][j] = 0;
+                static_container[i][j] = 0;
+                DrawPoint(j,i+1,col);
+                container[i+1][j] = 1;
+                static_container[i+1][j] = 1;
+                colorContainer[i+1][j] = col;
+            }
+        }
+    }
 }
 int moveRight(int x, int y, int type[][4], uint16_t color) {
     if (BcheckCrash(x, y, type, 2) == 0) {
@@ -823,7 +904,7 @@ int BcheckCrash(int x, int y, int type[][4], int direction) {
     switch (direction) {
         case 0://down
 
-        //delete
+            //delete
 
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
@@ -944,23 +1025,6 @@ int BcheckCrash(int x, int y, int type[][4], int direction) {
             }
             break;
 
-
-
-//            delete(x, y, type);
-//            record(x, y - 1, type);
-//            for (int i = 0; i < 31; i++) {
-//                for (int j = 0; j < 20; j++) {
-//                    sum -= container[i][j];
-//                }
-//            }
-//            delete(x, y - 1, type);
-//            record(x, y, type);
-//            if (sum == 0) {
-//                return 0;
-//            } else {
-//                return 1;
-//            }
-//            break;
     }
 }
 /*
@@ -971,9 +1035,11 @@ void InitialPlane() {
     LCD_DrawRectangle(0, 248, 160, 253);
     LCD_DrawRectangle(160, 0, 165, 253);
     LCD_DrawLine(160, 248, 165, 248);
-//	LCD_Color_Fill(0,250,160,255,CYAN);
-//	LCD_Color_Fill(160,0,165,255,BRRED);
-//	LCD_Clear(GRAY);
+    LCD_Draw_Circle(200,27,25);
+    //LCD_ShowString(190, 55, 200, 12, 12, (uint8_t*) "next");
+    LCD_Draw_Circle(200,80,25);
+    LCD_ShowString(190, 108, 200, 12, 12, (uint8_t*) "next");
+
 }
 /*
  * 在画布的位置(x,y)加入有形状的方块�?
@@ -1076,10 +1142,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
+    /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
 
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
@@ -1091,7 +1157,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
