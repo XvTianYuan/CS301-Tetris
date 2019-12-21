@@ -41,7 +41,7 @@ void delete(int x, int y, int type[][4]);
 int checkAndDraw(int x, int y, int **type, int direction);
 void InitialPlane();
 void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color);
-void clearPlane(uint16_t x, uint16_t y, int array[][4]);
+void clearPlane(int x, int y, int array[][4]);
 void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color);
 void ClearPoint(uint16_t x1, uint16_t y1);
 int create();
@@ -1057,12 +1057,18 @@ void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
 /*
  * 在画布的位置(x,y)擦除方块�?
  */
-void clearPlane(uint16_t x, uint16_t y, int array[][4]) {
+void clearPlane(int x, int y, int array[][4]) {
 //	LCD_ShowNum(31, 40,array[0][0],2, 24);
     for (uint16_t i = 0; i < 4; i++) {
         for (uint16_t j = 0; j < 4; j++) {
             if (array[i][j] == 1) {
                 ClearPoint(y + j, x + i);
+                if (y+j>0 && static_container[x+i][y+j-1]==1){
+                	DrawPoint(y+j-1,x+i,colorContainer[x+i][y+j-1]);
+                }
+                if (y+j+1<31 && static_container[x+i][y+j+1]==1){
+                   	DrawPoint(y+j+1,x+i,colorContainer[x+i][y+j+1]);
+                }
             }
         }
     }
