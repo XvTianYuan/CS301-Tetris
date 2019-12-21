@@ -114,6 +114,7 @@ int next2x=8;
 int next2y=23;
 int next2IDX;
 uint16_t next_2_color;
+int user_score;
 /* USER CODE END 0 */
 
 /**
@@ -155,6 +156,7 @@ int main(void)
     int y = 10;
     next_color=RED;
     next_2_color=BLUE;
+    user_score=0;
 
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 20; j++) {
@@ -278,19 +280,7 @@ int main(void)
                 deleteLine(x);
                 breakOrNot = 1;
             }
-//            for(int i = 0; i<31;i++){
-//                for(int j=0;j<20;j++){
-//                    if(static_container[i][j]==1){
-//                        uint16_t col = colorContainer[i][j];
-//                        DrawPoint(j,i,col);
-//                    }
-//                }
-//            }
-//			for (int i = 15; i < 31; i++) {
-//				for (int j = 12; j < 20; j++) {
-//					LCD_ShowNum(0+(j-12)*12,20+(i-15)*12,container[i][j],2,12);
-//				}
-//			}
+
 
         }
     }
@@ -770,6 +760,9 @@ void executeDelete(int x){
         container[x][j] = 0;
         static_container[x][j] = 0;
     }
+    user_score+=30;
+    //LCD_ShowNum(183, 145, user_score, 4, 12);
+    //LCD_ShowNum(100, 200, user_score, 4, 12);
     for(int i = x-1;i>=0;i--){
         for(int j=0;j<20;j++){
             if(static_container[i][j]==1){
@@ -784,6 +777,7 @@ void executeDelete(int x){
             }
         }
     }
+
 }
 int moveRight(int x, int y, int type[][4], uint16_t color) {
     if (BcheckCrash(x, y, type, 2) == 0) {
@@ -1034,11 +1028,18 @@ void InitialPlane() {
     LCD_Set_Window(0,0,250,300);
     LCD_DrawRectangle(0, 248, 160, 253);
     LCD_DrawRectangle(160, 0, 165, 253);
+    LCD_Color_Fill(160,0,165,253,BLUE);
+    LCD_Color_Fill(0,248,160,253,BLUE);
     LCD_DrawLine(160, 248, 165, 248);
     LCD_Draw_Circle(200,27,25);
     //LCD_ShowString(190, 55, 200, 12, 12, (uint8_t*) "next");
     LCD_Draw_Circle(200,80,25);
     LCD_ShowString(190, 108, 200, 12, 12, (uint8_t*) "next");
+    LCD_DrawRectangle(165, 125, 243, 175);
+    LCD_Color_Fill(165,125,243,135,BLUE);
+    LCD_ShowString(185, 135, 200, 12, 12, (uint8_t*) "score");
+    LCD_ShowNum(183, 145, user_score, 4, 12);
+    LCD_Color_Fill(165,165,243,175,BLUE);
 
 }
 /*
