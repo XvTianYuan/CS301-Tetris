@@ -90,8 +90,10 @@ int type3[][4] = { { 0, 0, 0, 0 }, { 1, 1, 0, 0 }, { 0, 1, 1, 0 },
                    { 0, 0, 0, 0 } };
 int type4[][4] = { { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 0, 0, 0, 0 },
                    { 0, 0, 0, 0 } };
-int type5[][4] = { { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 },
+int type7[][4] = { { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 },
                    { 0, 1, 0, 0 } };
+int type5[][4] ={{0,1,1,0},{0,1,0,0},{0,1,0,0},{0,0,0,0}};
+int type6[][4] ={{0,1,1,0},{1,1,0,0},{0,0,0,0},{0,0,0,0}};
 int type0[][4] = { { 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 },
                    { 0, 0, 0, 0 } };
 int shapeType = 0; //0代表使用3*3矩阵的形状，1代表正方形，2代表长条
@@ -218,6 +220,20 @@ int main(void)
                     }
                 }
                 break;
+            case 5:
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        base[i][j] = type5[i][j];
+                    }
+                }
+                break;
+            case 6:
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        base[i][j] = type6[i][j];
+                    }
+                }
+            break;
         }
 
         LCD_ShowNum(20, 40, t, 4, 12);
@@ -395,7 +411,7 @@ int change(int type, int x, int y) {
     int sum = 0;
     int tmp[4][4];
     if (type == 0) {
-        type = 5;
+        type = 7;
         for (int i = 0; i < 31; i++) {
             for (int j = 0; j < 20; j++) {
                 if (container[i][j] == 1) {
@@ -404,7 +420,7 @@ int change(int type, int x, int y) {
             }
         }
         delete(x, y, base);
-        record(x, y, type5);
+        record(x, y, type7);
         for (int i = 0; i < 31; i++) {
             for (int j = 0; j < 20; j++) {
                 if (container[i][j] == 1) {
@@ -416,16 +432,16 @@ int change(int type, int x, int y) {
             clearPlane(x, y, base);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    base[i][j] = type5[i][j];
+                    base[i][j] = type7[i][j];
                 }
             }
             drawPlane(x, y, base, color);
         } else {
-            delete(x, y, type5);
+            delete(x, y, type7);
             record(x, y, base);
         }
 
-    } else if (type == 5) {
+    } else if (type == 7) {
         type = 0;
         for (int i = 0; i < 31; i++) {
             for (int j = 0; j < 20; j++) {
@@ -511,9 +527,9 @@ int change(int type, int x, int y) {
  */
 int create() {
 
-    int now = rand() % 5;
+    int now = rand() % 7;
     while (now == pre) {
-        now = rand() % 5;
+        now = rand() % 7;
     }
     pre = now;
     //int type = rand() % 4;
@@ -552,6 +568,12 @@ int create() {
         //next_color=BRRED;
         next_2_color=BRRED;
         //return type4;
+    }
+    if(now==5){
+        next_color=GRAYBLUE;
+    }
+    if(now==6){
+        next_color=LIGHTGREEN;
     }
     return now;
 }
@@ -599,6 +621,22 @@ void createNext(int idxx){
                 }
             }
             break;
+         case 5:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type5[i][j];
+                }
+            }
+            break;
+        case 6:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next[i][j]=type6[i][j];
+                }
+            }
+            break;
     }
 }
 
@@ -643,6 +681,22 @@ void createNext2(int idxx){
                 for (int j = 0; j < 4; j++) {
 
                     next2[i][j]=type4[i][j];
+                }
+            }
+            break;
+        case 5:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type5[i][j];
+                }
+            }
+            break;
+        case 6:
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+
+                    next2[i][j]=type6[i][j];
                 }
             }
             break;
