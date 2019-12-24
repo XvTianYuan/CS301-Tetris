@@ -117,6 +117,8 @@ int next2y=23;
 int next2IDX;
 uint16_t next_2_color;
 int user_score;
+int user_level;
+int delay;
 /* USER CODE END 0 */
 
 /**
@@ -159,7 +161,8 @@ int main(void)
     next_color=RED;
     next_2_color=BLUE;
     user_score=0;
-
+    delay=10;
+    user_level=1;
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 20; j++) {
             container[i][j] = 0;
@@ -259,7 +262,7 @@ int main(void)
 
         while (breakOrNot == 0) {
             LCD_ShowNum(20, 60, tt++, 4, 12);
-            HAL_Delay(10);
+            HAL_Delay(delay);
             //shape = change(shape, x, y);
             int state = moveDown(x, y, base, color);
             int state2=1;
@@ -831,7 +834,10 @@ void executeDelete(int x){
             }
         }
     }
-
+    if(user_score>=user_level*user_level*30*3){
+        user_level++;
+        delay--;
+    }
 }
 int moveRight(int x, int y, int type[][4], uint16_t color) {
     if (BcheckCrash(x, y, type, 2) == 0) {
