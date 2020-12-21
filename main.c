@@ -118,7 +118,8 @@ int next2IDX;
 uint16_t next_2_color;
 int user_score;
 int user_level;
-int delay;
+double user_delay = 15;
+double delay;
 /* USER CODE END 0 */
 
 /**
@@ -161,7 +162,7 @@ int main(void)
     next_color=RED;
     next_2_color=BLUE;
     user_score=0;
-    delay=10;
+    delay=user_delay;
     user_level=1;
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 20; j++) {
@@ -236,12 +237,14 @@ int main(void)
                         base[i][j] = type6[i][j];
                     }
                 }
-            break;
+                break;
         }
 
-        LCD_ShowNum(20, 40, t, 4, 12);
-        t++;
+        //LCD_ShowNum(20, 40, t, 4, 12);
 
+        delay = user_delay;
+        LCD_ShowString(185, 180, 200, 12, 12, (uint8_t*) "level");
+        LCD_ShowNum(183,200,user_level,4,12);
         if (GameOver(x, y, base) == 0) {
             drawPlane(x, y, base, color);
             record(x, y, base);
@@ -257,18 +260,30 @@ int main(void)
         HAL_Delay(10);
 //		drawPlane(x, y, type1, BLUE);
         int breakOrNot = 0;
-        int tt = 0;
         int shape = idx;
+        if(t%10 == 0){
+            LCD_ShowString(30,270,200,24,24, (uint8_t*)"Good luck!");
+            delay = 0.4;
+        }else{
+            LCD_ShowString(30,270,200,24,24, (uint8_t*)"Fighting!!");
 
+        }
+        t++;
         while (breakOrNot == 0) {
-            LCD_ShowNum(20, 60, tt++, 4, 12);
+            //LCD_ShowNum(20, 60, delay, 4, 12);
             HAL_Delay(delay);
             //shape = change(shape, x, y);
             int state = moveDown(x, y, base, color);
+            if(state==1)x++;
+            for (int i=0;i<user_level;i++){
+                state=moveDown(x,y,base,color);
+                if(state==1)x++;
+            }
             int state2=1;
             int state3=1;
+            int state4=1;
             if (state == 1) {
-                x++;
+                //x++;
                 switch (direction_type){
                     case 1:
                         state2=moveLeft(x,y,base,color);
@@ -299,8 +314,6 @@ int main(void)
                 deleteLine(x);
                 breakOrNot = 1;
             }
-
-
         }
     }
     /* USER CODE END WHILE */
@@ -431,7 +444,7 @@ int change(int type, int x, int y) {
                 }
             }
         }
-        if (sum == 0) { //无碰�?
+        if (sum == 0) { //无碰??
             clearPlane(x, y, base);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
@@ -463,7 +476,7 @@ int change(int type, int x, int y) {
                 }
             }
         }
-        if (sum == 0) { //无碰�?
+        if (sum == 0) { //无碰??
             clearPlane(x, y, base);
             drawPlane(x, y, type0, color);
             for (int i = 0; i < 4; i++) {
@@ -507,7 +520,7 @@ int change(int type, int x, int y) {
                 }
             }
         }
-        if (sum == 0) { //无碰�?
+        if (sum == 0) { //无碰??
             clearPlane(x, y, base);
             drawPlane(x, y, ans, color);
             for (int i = 0; i < 4; i++) {
@@ -523,9 +536,9 @@ int change(int type, int x, int y) {
     return type;
 }
 /*
- * 随机函数，保证不出现上一次出现过的类�?
- * 随机得到旋转的角�?
- * 利用上面提到的旋转函数进行转�?
+ * 随机函数，保证不出现上一次出现过的类??
+ * 随机得到旋转的角??
+ * 利用上面提到的旋转函数进行转??
  * 顺便取得作画时所用的颜色
  */
 int create() {
@@ -537,46 +550,34 @@ int create() {
     pre = now;
     //int type = rand() % 4;
     if (now == 0) {
-        //color = BLUE;
-        //next_color=BLUE;
+
         next_2_color=BLUE;
 
-
-        //return type0;
     }
     if (now == 1) {
-        //color = YELLOW;
-        //next_color=YELLOW;
+
         next_2_color=YELLOW;
 
-
-        //return type1;
     }
     if (now == 2) {
-        //color = RED;
-        //next_color=RED;
+
         next_2_color=RED;
 
-        //return type2;
+
     }
     if (now == 3) {
-        //color = GREEN;
-        //next_color=GREEN;
         next_2_color=GREEN;
 
-        //return type3;
     }
     if (now == 4) {
-        //color = BRRED;
-        //next_color=BRRED;
+
         next_2_color=BRRED;
-        //return type4;
     }
     if(now==5){
-        next_color=GRAYBLUE;
+        next_2_color=GRAYBLUE;
     }
     if(now==6){
-        next_color=LIGHTGREEN;
+        next_2_color=LIGHTGREEN;
     }
     return now;
 }
@@ -624,7 +625,7 @@ void createNext(int idxx){
                 }
             }
             break;
-         case 5:
+        case 5:
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
 
@@ -723,7 +724,7 @@ int GameOver(int x, int y, int type[][4]) {
             sum2 += container[i][j];
         }
     }
-    LCD_ShowNum(20, 20, (sum2 - sum), 4, 12);
+    //LCD_ShowNum(20, 20, (sum2 - sum), 4, 12);
     if (sum2 - sum != 4) {
         return 1;
     } else {
@@ -732,7 +733,7 @@ int GameOver(int x, int y, int type[][4]) {
     return 0;
 }
 /*
- * 将当前位�?(x,y)的形状写入container
+ * 将当前位??(x,y)的形状写入container
  */
 void record(int x, int y, int type[][4]) {
     for (int i = 0; i < 4; i++) {
@@ -771,7 +772,7 @@ void recordColor(int x, int y, int type[][4],uint16_t col) {
     }
 }
 /*
- * 将container位置(x,y)的形状删�?
+ * 将container位置(x,y)的形状删??
  */
 void delete(int x, int y, int type[][4]) {
     for (int i = 0; i < 4; i++) {
@@ -784,8 +785,8 @@ void delete(int x, int y, int type[][4]) {
     }
 }
 /*
- * 将方块向下移�?
- * 返回值表示有没有走到底，0表示到底了，1表示还没�?
+ * 将方块向下移??
+ * 返回值表示有没有走到底，0表示到底了，1表示还没??
  */
 int moveDown(int x, int y, int type[][4], uint16_t color) {
     if (BcheckCrash(x, y, type, 0) == 0) {
@@ -834,9 +835,14 @@ void executeDelete(int x){
             }
         }
     }
-    if(user_score>=user_level*user_level*30*3){
+    if(user_score>=user_level*user_level*30*1){
         user_level++;
-        delay--;
+        LCD_ShowString(35, 80, 200, 12, 24, (uint8_t*) "Level Up!");
+        HAL_Delay(100);
+        LCD_Fill(35,80,140,104,WHITE);
+        //LCD_ShowString(100, 180, 200, 12, 24, (uint8_t*) "level");
+
+        user_delay--;
     }
 }
 int moveRight(int x, int y, int type[][4], uint16_t color) {
@@ -863,8 +869,8 @@ int moveLeft(int x, int y, int type[][4], uint16_t color) {
 
 
 /*
- * �?查碰撞，direction是行动方向，0 = down�?1 = left�?2 = right
- * 有碰撞则返回1，无则返�?0
+ * ??查碰撞，direction是行动方向，0 = down??1 = left??2 = right
+ * 有碰撞则返回1，无则返??0
  */
 int checkCrash(int x, int y, int type[][4], int direction) {
     int sum = 0;
@@ -1085,7 +1091,7 @@ int BcheckCrash(int x, int y, int type[][4], int direction) {
  * 初始化画布和基础布局
  */
 void InitialPlane() {
-    LCD_Set_Window(0,0,250,300);
+//    LCD_Set_Window(0,0,250,300);
     LCD_DrawRectangle(0, 248, 160, 253);
     LCD_DrawRectangle(160, 0, 165, 253);
     LCD_Color_Fill(160,0,165,253,BLUE);
@@ -1100,10 +1106,13 @@ void InitialPlane() {
     LCD_ShowString(185, 135, 200, 12, 12, (uint8_t*) "score");
     LCD_ShowNum(183, 145, user_score, 4, 12);
     LCD_Color_Fill(165,165,243,175,BLUE);
+    LCD_ShowString(185, 180, 200, 12, 12, (uint8_t*) "level");
+    LCD_ShowNum(183,200,user_level,4,12);
+
 
 }
 /*
- * 在画布的位置(x,y)加入有形状的方块�?
+ * 在画布的位置(x,y)加入有形状的方块??
  */
 void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
 //	LCD_ShowNum(31, 40,array[0][0],2, 24);
@@ -1116,7 +1125,7 @@ void drawPlane(uint16_t x, uint16_t y, int array[][4], uint16_t color) {
     }
 }
 /*
- * 在画布的位置(x,y)擦除方块�?
+ * 在画布的位置(x,y)擦除方块??
  */
 void clearPlane(int x, int y, int array[][4]) {
 //	LCD_ShowNum(31, 40,array[0][0],2, 24);
@@ -1125,7 +1134,7 @@ void clearPlane(int x, int y, int array[][4]) {
             if (array[i][j] == 1) {
                 ClearPoint(y + j, x + i);
                 if (y+j>0 && static_container[x+i][y+j-1]==1){
-                   	DrawPoint(y+j-1,x+i,colorContainer[x+i][y+j-1]);
+                    DrawPoint(y+j-1,x+i,colorContainer[x+i][y+j-1]);
                 }
                 if (y+j+1<31 && static_container[x+i][y+j+1]==1){
                     DrawPoint(y+j+1,x+i,colorContainer[x+i][y+j+1]);
@@ -1136,7 +1145,7 @@ void clearPlane(int x, int y, int array[][4]) {
     InitialPlane();
 }
 /*
- * 像素放大，每�?个方块是8*8像素点的集合�?
+ * 像素放大，每??个方块是8*8像素点的集合??
  */
 void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color) {
     for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
@@ -1153,7 +1162,7 @@ void DrawPoint(uint16_t x1, uint16_t y1, uint16_t color) {
     }
 }
 /*
- * 将方块擦�?
+ * 将方块擦??
  */
 void ClearPoint(uint16_t x1, uint16_t y1) {
     for (uint16_t i = x1 * 8; i < x1 * 8 + 8; i++) {
@@ -1233,3 +1242,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
